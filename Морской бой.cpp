@@ -1,18 +1,24 @@
 ﻿#include <iostream>
-#include <time.h>
+#include <ctime>
 #include <string>
 using namespace std;
-
+bool decision=true;
+int i_old;
+int j_old;
 int fillFiled(char arr[10][10]);//создание пустого поля
 void coutFiled(char filed [10][10], char filed2[10][10]);//вывод поля игрока и поле противника
 void coutFiled(char filed[10][10]);
 void PvsP();//режим игрок против игрока
+void PvE();//режим игрок против компьютера
 int arrangement(char arr[10][10],char OParr[10][10], char arr2[10][10], char OParr2[10][10]);
+int arrangement(char arr[10][10],char OParr[10][10], char arr2[10][10]);
+int shot(char arr[10][10]);
 void game(char PLarr[10][10], char OParr[10][10], char PLarr2[10][10], char OParr2[10][10]);
+void game(char PLarr[10][10], char OParr[10][10], char comp[10][10]);
 bool check_shot(char arr[10][10], int i, int j);
 bool check_shot2(char arr[10][10], int i, int j);
-int killed(char arr[10][10], char OParr[10][10],int i , int j);
-int killed2(char arr[10][10], char OParr[10][10],int i , int j);
+int killed(char arr[10][10],int i , int j);
+int killed2(char arr[10][10],int i , int j);
 
 int four_decker(char arr[10][10]);//создание четырехпалубника
 int four_decker_for_Rand(char arr[10][10]);
@@ -29,16 +35,21 @@ void next_move();
 int main() {
 	setlocale(LC_ALL, "Russian");
 	srand(time(NULL));
-	
-
 	cout << "\t\tМОРСКОЙ БОЙ" << endl;
-	cout << "Выберете режим:\n0 - Player VS Player\n1 - Player VS Computer "<<endl;
 	int mode = 0;
-	cin >> mode;
-	if (mode == 0) {
-		PvsP();
-	}
+	do {
+		cout << "Выберете режим:\n0 - Player VS Player\n1 - Player VS Computer " << endl;
+		
+		cin >> mode;
 
+		if (mode == 0) {
+			PvsP();
+		}
+		else if (mode == 1) {
+			PvE();
+		}
+	} while (mode > 1);
+	return 0;
 }
 bool check_shot(char arr[10][10], int i ,int j) {
 	int a = 0;
@@ -481,8 +492,8 @@ if (arr[i][j] == '-') {
 		if (!check_shot(arr, i, j))	{
 			if (!check_shot2(arr, i, j)) {
 				cout << "Убит!!!" << endl;
-				killed(arr, OParr2, i, j);
-				killed2(arr, OParr2, i, j);
+				killed(arr,  i, j);
+				killed2(arr,  i, j);
 
 			}
 		}
@@ -506,6 +517,68 @@ if (arr[i][j] == '-') {
 	OParr2[i][j]= arr[i][j];
 	
 	return **arr, **OParr2;
+
+}
+int arrangement(char arr[10][10], char OParr2[10][10], char arr2[10][10]) {
+	cout << "Введите координаты,для выстрела:" << endl;
+	string move;
+
+	getline(cin, move);
+	if (move.length() < 2) {
+		arrangement(arr,  OParr2,arr2 );
+		return **arr, ** OParr2;
+	}
+	int j = 0;
+	int i = (char)move[0] - 65;
+	if (move.length() > 2) {
+		j = (char)move[1] - 49 + 9;
+	}
+	else
+		j = (char)move[1] - 49;
+	if (arr[i][j] == '-') {
+		arr[i][j] = '*';
+
+		cout << "ПРОМАХ!!!" << endl;
+	}
+	else if (arr[i][j] == '*' || arr[i][j] == 'X') {
+		cout << "Вы уже стреляли сюда ,повторите." << endl;
+		arrangement(arr, OParr2, arr2);
+		return **arr, ** OParr2;
+
+	}
+	else if (arr[i][j] == '$') {
+		arr[i][j] = 'X';
+		OParr2[i][j] = arr[i][j];
+		bool win = true;
+		cout << "ПОПОДАНИЕ!!!" << endl;
+		if (!check_shot(arr, i, j)) {
+			if (!check_shot2(arr, i, j)) {
+				cout << "Убит!!!" << endl;
+				killed(arr,  i, j);
+				killed2(arr,  i, j);
+
+			}
+		}
+		for (int i = 0; i < 10; i++) {
+			for (int j = 0; j < 10; j++) {
+				if (arr[i][j] == '*') {
+					OParr2[i][j] = arr[i][j];
+				}
+			}
+		}
+		win = winnerOrno(arr);
+		if (win == false) {
+			return **arr, ** OParr2;
+		}
+		cout << "Дополнительный ход" << endl;
+		coutFiled(arr2, OParr2);
+		arrangement(arr, OParr2, arr2);
+		return **arr, ** OParr2;
+
+	}
+	OParr2[i][j] = arr[i][j];
+
+	return **arr, ** OParr2;
 
 }
 
@@ -1072,277 +1145,299 @@ bool check(char arr[10][10], int i, int j) {
 	}
 	return true;
 }
-int killed(char arr[10][10], char OParr[10][10],int i, int j) {
+int killed(char arr[10][10], int i, int j) {
 	int a = 0;
+	if (i == 0 || i == 9 || j == 0 || j == 9) {
+		if (i == 0) {
+			if (j >= 0 && j < 9) {
+				if (arr[i][j + 1] == '-') {
+					arr[i][j + 1] = '*';
+				}
+				if (arr[i + 1][j] == '-') {
+					arr[i + 1][j] = '*';
+				}
+				if (arr[i + 1][j + 1] == '-') {
+					arr[i + 1][j + 1] = '*';
+				}
+				if (arr[i][j + 1] == 'X') {
+					j++;
+					killed(arr,  i, j);
+					return 0;
+				}
+				if (arr[i + 1][j] == 'X') {
+					i++;
+					killed(arr,  i, j);
+					return 0;
+				}
 
-	if (i ==0) {
-		if (j >= 0&&j<9) {
-			if (arr[i ][j + 1] == '-') {
-				arr[i ][j + 1] = '*';
 			}
-			if (arr[i + 1][j] =='-') {
-				arr[i + 1][j] = '*';
-			}
-			if (arr[i + 1][j + 1] == '-') {
-				arr[i + 1][j + 1] = '*';
-			}
-			if (arr[i][j + 1] == 'X') {
-				j++;
-				killed(arr, OParr, i, j);
-				return 0;
-			}
-			if (arr[i + 1][j] == 'X') {
-				i++;
-				killed(arr, OParr, i, j);
-				return 0;
+			if (j == 9) {
+
+				if (arr[i + 1][j] == '-') {
+					arr[i + 1][j] = '*';
+				}
+
+				if (arr[i + 1][j] == 'X') {
+					i++;
+					killed(arr,  i, j);
+					return 0;
+				}
+
 			}
 			
 		}
-		if (j == 9) {
-
-			if (arr[i + 1][j] == '-') {
-				arr[i + 1][j] = '*';
-			}
-			if (arr[i + 1][j + 1] == '-') {
-				arr[i + 1][j + 1] = '*';
-			}
-
-			if (arr[i + 1][j] == 'X') {
-				i++;
-				killed(arr, OParr, i, j);
-				return 0;
-			}
-
-		}
-	
-	}
-	if (i == 9) {
-		if (j >= 0 && j < 9) {
-			if (arr[i][j + 1] == '-') {
-				arr[i][j + 1] = '*';
-			}
-
-			if (arr[i][j + 1] == 'X') {
-				j++;
-				killed(arr, OParr, i, j);
-				return 0;
-			}
-		}
-
-	}
-	if (j == 0) {
-		if (i >= 0 && i < 9) {
-			if (arr[i][j + 1] == '-') {
-				arr[i][j + 1] = '*';
-			}
-			if (arr[i + 1][j] == '-') {
-				arr[i + 1][j] = '*';
-			}
-			if (arr[i + 1][j + 1]== '-') {
-				arr[i + 1][j + 1] = '*';
-			}
-			if (arr[i+1][j ] == 'X') {
-				i++;
-				killed(arr, OParr, i, j);
-				return 0;
-			}
-			if (arr[i][j+1] == 'X') {
-				j++;
-				killed(arr, OParr, i, j);
-				return 0;
-			}
-
-		}
 		if (i == 9) {
-			if (arr[i][j + 1] == '-') {
-				arr[i][j + 1] = '*';
-			}
-			if (arr[i][j + 1] == 'X') {
-				j++;
-				killed(arr, OParr, i, j);
-				return 0;
-			}
-		}
-	}
-	if (j == 9) {
-		if (i >= 0 && i < 9) {
-			if (arr[i + 1][j] == '-') {
-				arr[i + 1][j] = '*';
-			}
-
-			if (arr[i + 1][j] == 'X') {
-				i++;
-				killed(arr, OParr, i, j);
-				return 0;
-			}
-		}
-	}
-	if (arr[i][j + 1] == '-') {
-		arr[i][j + 1] = '*';
-	}
-	if (arr[i + 1][j] == '-') {
-		arr[i + 1][j] = '*';
-	}
-	if (arr[i + 1][j + 1] == '-') {
-		arr[i + 1][j + 1] = '*';
-	}
-	if (arr[i - 1][j + 1] == '-') {
-		arr[i - 1][j + 1] = '*';
-	}
-	if (arr[i + 1][j - 1] == '-') {
-		arr[i + 1][j - 1] = '*';
-	}
-
-	if (arr[i][j + 1] == 'X') {
-		j++;
-		killed(arr, OParr, i, j);
-		return 0;
-	}
-	if (arr[i + 1][j] == 'X') {
-		i++;
-		killed(arr, OParr, i, j);
-		return 0;
-	}
-	return **arr;
-}
-int killed2(char arr[10][10], char OParr[10][10], int i, int j) {
-	int a = 0;
-
-	if (i == 0) {
-		if (j > 0 && j <= 9) {
-			if (arr[i][j - 1] == '-') {
-				arr[i][j - 1] = '*';
-			}
-
-			if (arr[i + 1][j - 1] == '-') {
-				arr[i + 1][j - 1] = '*';
-			}
-			if (arr[i][j - 1] == 'X') {
-				j--;
-				killed2(arr, OParr, i, j);
-				return 0;
+			if (j >= 0 && j < 9) {
+				if (arr[i][j + 1] == '-') {
+					arr[i][j + 1] = '*';
+				}
+				if (arr[i - 1][j + 1] == '-') {
+					arr[i - 1][j + 1] = '*';
+				}
+				if (arr[i][j + 1] == 'X') {
+					j++;
+					killed(arr,  i, j);
+					return 0;
+				}
 			}
 		
 
 		}
+		if (j == 0) {
+			if (i >= 0 && i < 9) {
+				if (arr[i][j + 1] == '-') {
+					arr[i][j + 1] = '*';
+				}
+				if (arr[i + 1][j] == '-') {
+					arr[i + 1][j] = '*';
+				}
+				if (arr[i + 1][j + 1] == '-') {
+					arr[i + 1][j + 1] = '*';
+				}
+				if (arr[i + 1][j] == 'X') {
+					i++;
+					killed(arr, i, j);
+					return 0;
+				}
+				if (arr[i][j + 1] == 'X') {
+					j++;
+					killed(arr,  i, j);
+					return 0;
+				}
 
+			}
+			if (i == 9) {
+				if (arr[i][j + 1] == '-') {
+					arr[i][j + 1] = '*';
+				}
+				if (arr[i][j + 1] == 'X') {
+					j++;
+					killed(arr,  i, j);
+					return 0;
+				}
+			}
 
+		}
+		if (j == 9) {
+			if (i >= 0 && i < 9) {
+				if (arr[i + 1][j] == '-') {
+					arr[i + 1][j] = '*';
+				}
+
+				if (arr[i + 1][j] == 'X') {
+					i++;
+					killed(arr,  i, j);
+					return 0;
+				}
+			}
+			if (i >= 0 && i < 9) {
+				if (arr[i + 1][j - 1] == '-') {
+					arr[i + 1][j - 1] = '*';
+				}
+			}
+		}
 	}
-	if (i == 9) {
-		if (j > 0 && j <= 9) {
-			if (arr[i-1][j] == '-') {
-				arr[i-1][j] = '*';
+	else
+	{
+
+		if (arr[i][j + 1] == '-') {
+			arr[i][j + 1] = '*';
+		}
+		if (arr[i + 1][j] == '-') {
+			arr[i + 1][j] = '*';
+		}
+		if (arr[i + 1][j + 1] == '-') {
+			arr[i + 1][j + 1] = '*';
+		}
+		if (arr[i - 1][j + 1] == '-') {
+			arr[i - 1][j + 1] = '*';
+		}
+		if (arr[i + 1][j - 1] == '-') {
+			arr[i + 1][j - 1] = '*';
+		}
+
+		if (arr[i][j + 1] == 'X') {
+			j++;
+			killed(arr,  i, j);
+			return 0;
+		}
+		if (arr[i + 1][j] == 'X') {
+			i++;
+			killed(arr,  i, j);
+			return 0;
+
+		}
+	}
+	return **arr;
+}
+int killed2(char arr[10][10],  int i, int j) {
+	int a = 0;
+	if (i == 0 || i == 9 || j == 0 || j == 9) {
+		if (i == 0) {
+			if (j > 0 && j <= 9) {
+				if (arr[i][j - 1] == '-') {
+					arr[i][j - 1] = '*';
+				}
+
+				if (arr[i + 1][j - 1] == '-') {
+					arr[i + 1][j - 1] = '*';
+				}
+				if (arr[i][j - 1] == 'X') {
+					j--;
+					killed2(arr,  i, j);
+					return 0;
+				}
+
+
 			}
-			if (arr[i - 1][j-1] == '-') {
-				arr[i - 1][j-1] = '*';
+
+
+		}
+		if (i == 9) {
+			if (j > 0 && j <= 9) {
+				if (arr[i - 1][j] == '-') {
+					arr[i - 1][j] = '*';
+				}
+				if (arr[i - 1][j - 1] == '-') {
+					arr[i - 1][j - 1] = '*';
+				}
+				if (arr[i][j - 1] == '-') {
+					arr[i][j - 1] = '*';
+				}
+				if (arr[i - 1][j] == 'X') {
+					i--;
+					killed2(arr,  i, j);
+					return 0;
+				}
+				if (arr[i][j - 1] == 'X') {
+					j--;
+					killed2(arr, i, j);
+					return 0;
+				}
 			}
-			if (arr[i][j - 1] == '-') {
-				arr[i][j - 1] = '*';
+			if (j == 0) {
+				if (arr[i - 1][j] == '-') {
+					arr[i - 1][j] = '*';
+				}
+				if (arr[i - 1][j] == 'X') {
+					i--;
+					killed2(arr,  i, j);
+					return 0;
+				}
 			}
-			if (arr[i-1][j] == 'X') {
-				i--;
-				killed2(arr, OParr, i, j);
-				return 0;
-			}
-			if (arr[i][j-1] == 'X') {
-				j--;
-				killed2(arr, OParr, i, j);
-				return 0;
-			}
+
 		}
 		if (j == 0) {
-			if (arr[i - 1][j] == '-') {
-				arr[i - 1][j] = '*';
-			}
-			if (arr[i - 1][j] == 'X') {
-				i--;
-				killed2(arr, OParr, i, j);
-				return 0;
+			if (i > 0 && i <= 9) {
+				if (arr[i - 1][j] == '-') {
+					arr[i - 1][j] = '*';
+				}
+
+				if (arr[i - 1][j + 1] == '-') {
+					arr[i - 1][j + 1] = '*';
+				}
+
+				if (arr[i - 1][j] == 'X') {
+					i--;
+					killed2(arr,  i, j);
+					return 0;
+				}
+
 			}
 		}
+		if (j == 9) {
+			if (i > 0 && i <= 9) {
+				if (arr[i - 1][j] == '-') {
+					arr[i - 1][j] = '*';
+				}
+				if (arr[i - 1][j - 1] == '-') {
+					arr[i - 1][j - 1] = '*';
+				}
+				if (arr[i][j - 1] == '-') {
+					arr[i][j - 1] = '*';
+				}
+				if (arr[i][j - 1] == '-') {
+					arr[i][j - 1] = '*';
+				}
+				if (arr[i - 1][j] == 'X') {
+					i--;
+					killed2(arr,  i, j);
+					return 0;
+				}
 
-	}
-	if (j == 0) {
-		if (i > 0 && i <= 9) {
-			if (arr[i-1][j] == '-') {
-				arr[i-1][j] = '*';
+				if (arr[i][j - 1] == 'X') {
+					j--;
+					killed2(arr,  i, j);
+					return 0;
+				}
 			}
-			
-			if (arr[i - 1][j + 1] == '-') {
-				arr[i - 1][j + 1] = '*';
+			if (i >= 0 && i < 9) {
+				if (arr[i+1][j - 1] == '-') {
+					arr[i+1][j - 1] = '*';
+				}
 			}
-			
-			if (arr[i-1][j] == 'X') {
-				i--;
-				killed2(arr, OParr, i, j);
-				return 0;
-			}
+			if (i == 0) {
 
+
+				if (arr[i][j - 1] == '-') {
+					arr[i][j - 1] = '*';
+				}
+				if (arr[i][j - 1] == 'X') {
+					j--;
+					killed2(arr,  i, j);
+					return 0;
+				}
+
+			}
 		}
 	}
-	if (j == 9) {
-		if (i > 0 && i <= 9) {
-			if (arr[i - 1][j] == '-') {
-				arr[i - 1][j] = '*';
-			}
-			if (arr[i - 1][j-1] == '-') {
-				arr[i - 1][j-1] = '*';
-			}
-			if (arr[i ][j - 1] == '-') {
-				arr[i ][j - 1] = '*';
-			}
-
-			if (arr[i - 1][j] == 'X') {
-				i--;
-				killed2(arr, OParr, i, j);
-				return 0;
-			}
-
-			if (arr[i  ][j-1] == 'X') {
-				j--;
-				killed2(arr, OParr, i, j);
-				return 0;
-			}
+	else {
+		if (arr[i][j - 1] == '-') {
+			arr[i][j - 1] = '*';
 		}
-		if (i == 0) {
-			
-			
-			if (arr[i][j - 1] == '-') {
-				arr[i][j - 1] = '*';
-			}
-			if (arr[i][j - 1] == 'X') {
-				j--;
-				killed2(arr, OParr, i, j);
-				return 0;
-			}
-
+		if (arr[i - 1][j] == '-') {
+			arr[i - 1][j] = '*';
 		}
-	}
-	if (arr[i][j - 1] == '-') {
-		arr[i][j - 1] = '*';
-	}
-	if (arr[i - 1][j] == '-') {
-		arr[i - 1][j] = '*';
-	}
-	if (arr[i - 1][j - 1] == '-') {
-		arr[i - 1][j - 1] = '*';
-	}
-	if (arr[i - 1][j + 1] == '-') {
-		arr[i - 1][j + 1] = '*';
-	}
-	if (arr[i + 1][j - 1] == '-') {
-		arr[i + 1][j - 1] = '*';
-	}
+		if (arr[i - 1][j - 1] == '-') {
+			arr[i - 1][j - 1] = '*';
+		}
+		if (arr[i - 1][j + 1] == '-') {
+			arr[i - 1][j + 1] = '*';
+		}
+		if (arr[i + 1][j - 1] == '-') {
+			arr[i + 1][j - 1] = '*';
+		}
 
-	if (arr[i][j - 1] == 'X') {
-		j--;
-		killed2(arr, OParr, i, j);
-		return 0;
-	}
-	if (arr[i - 1][j] == 'X') {
-		i--;
-		killed2(arr, OParr, i, j);
-		return 0;
+		if (arr[i][j - 1] == 'X') {
+			j--;
+			killed2(arr, i, j);
+			return 0;
+		}
+		if (arr[i - 1][j] == 'X') {
+			i--;
+			killed2(arr,  i, j);
+			return 0;
+		}
 	}
 	return **arr;
 }
@@ -1489,6 +1584,93 @@ cout << "Расстановка кораблей " << endl;
 		else (PvsP());
 		
 }
+void PvE() {
+	int const size = 10;
+	char player1Filed[size][size];
+	char compFiled[size][size];
+	char opponent1Filed[size][size];
+	
+	//
+	int counter = 0;
+
+	string a;
+
+	fillFiled(player1Filed);
+	fillFiled(compFiled);
+	fillFiled(opponent1Filed);
+	
+	cout << "Расстановка кораблей " << endl;
+	cout << "Player:" << endl;
+	coutFiled(player1Filed);
+	cout << "Как расстановить корабли:\n0 - вручную\n1 - случайным образом" << endl;
+	int b = 0;
+	cin >> b;
+	cin.ignore();
+	if (b == 1) {
+		four_decker_for_Rand(player1Filed);
+		three_decker_for_Rand(player1Filed);
+		three_decker_for_Rand(player1Filed);
+
+		while (counter < 3) {
+			double_decker_for_Rand(player1Filed);
+
+			counter++;
+		}
+		counter = 0;
+
+		while (counter < 4) {
+			single_decker_for_Rand(player1Filed);
+			counter++;
+		}
+		coutFiled(player1Filed);
+		counter = 0;
+
+
+	}
+	else if (b == 0) {
+
+
+
+		four_decker(player1Filed);
+		coutFiled(player1Filed);
+		three_decker(player1Filed);
+		coutFiled(player1Filed);
+		three_decker(player1Filed);
+		coutFiled(player1Filed);
+		while (counter < 3) {
+			double_decker(player1Filed);
+			coutFiled(player1Filed);
+			counter++;
+		}
+		counter = 0;
+		while (counter < 4) {
+			single_decker(player1Filed);
+			coutFiled(player1Filed);
+			counter++;
+		}
+
+	}
+	else {
+		PvE();
+	}
+	four_decker_for_Rand(compFiled);
+	three_decker_for_Rand(compFiled);
+	three_decker_for_Rand(compFiled);
+
+	while (counter < 3) {
+		double_decker_for_Rand(compFiled);
+
+		counter++;
+	}
+	counter = 0;
+
+	while (counter < 4) {
+		single_decker_for_Rand(compFiled);
+		counter++;
+	}
+	
+	game(player1Filed,opponent1Filed,compFiled );
+}
 void game(char PLarr[10][10], char OParr[10][10], char PLarr2[10][10], char OParr2[10][10]) {
 	string s;
 	bool win = true;
@@ -1529,5 +1711,86 @@ void game(char PLarr[10][10], char OParr[10][10], char PLarr2[10][10], char OPar
 		}
 		next_move();
 
+	}
+}
+int shot(char arr[10][10]) {
+	int i =0;
+	int j = 0;
+	if (decision) {
+		i = rand() % 10;
+		j = rand() % 10;
+	}
+	else
+	{
+		i = i_old;
+		j = j_old;
+	}
+	if (arr[i][j] == '-') {
+		cout << "Выстрел компьютера" << endl;
+		cout << char(i+65) <<j+1<< endl;
+		arr[i][j] = '*';
+		coutFiled(arr);
+		cout << "Промах!!!" << endl;
+		
+		
+	}
+	else if (arr[i][j] == '*'|| arr[i][j] == 'X') {
+		shot(arr);
+		return 0;
+	}
+	else if (arr[i][j] == '$') {
+		cout << "Выстрел компьютера" << endl;
+		cout << char(i + 65) << j + 1 << endl;
+		arr[i][j] = 'X';
+		if (!check_shot(arr, i, j)) {
+			if (!check_shot2(arr, i, j)) {
+				cout << "Убит!!!" << endl;
+				killed(arr, i, j);
+				killed2(arr, i, j);
+				decision = true;
+			}
+		}
+		coutFiled(arr);
+		cout << "Попадание!!!" << endl;
+		cout << "Дополнительный ход" << endl;	
+		shot(arr);
+		return 0;
+	}
+	return 0;
+}
+
+void game(char PLarr[10][10], char OParr[10][10], char comp[10][10]) {
+	string s;
+	bool win = true;
+	cout << "Для начала игры нажните Enter" << endl;
+	getline(cin, s);
+	
+	while (win) {
+		cout << "Player:" << endl;
+		coutFiled(PLarr, OParr);
+		arrangement(comp, OParr, PLarr);
+
+
+		win = winnerOrno(comp);
+		if (win == false) {
+			cout << "ПОБЕДА  игрока!!!" << endl;
+			cout << "Начать знаново ?\n0 - нет\n1 - да" << endl;
+			int a = 0;
+			cin >> a;
+			if (a == 1) {
+				main();
+			}
+		}
+		shot(PLarr);
+		win = winnerOrno(PLarr);
+		if (win == false) {
+			cout << "ПОБЕДА компьютера игрока игрока!!!" << endl;
+			cout << "Начать заново ?\n0 - нет\n1 - да" << endl;
+			int a = 0;
+			cin >> a;
+			if (a == 1) {
+				main();
+			}
+		}
 	}
 }
