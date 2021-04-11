@@ -1,8 +1,12 @@
 ﻿#include <iostream>
 #include <ctime>
 #include <string>
+#include <windows.h>
+#include "colorwin.hpp"
 using namespace std;
+using namespace colorwin;
 bool decision=true;
+bool complexity = true;
 int i_old;
 int j_old;
 int fillFiled(char arr[10][10]);//создание пустого поля
@@ -30,7 +34,6 @@ int single_decker(char arr[10][10]);
 int single_decker_for_Rand(char arr[10][10]);
 bool check(char arr[10][10], int i, int j);
 bool winnerOrno(char arr[10][10]);
-//int random_start(char arr[10][10]);
 void next_move();
 int main() {
 	setlocale(LC_ALL, "Russian");
@@ -49,6 +52,8 @@ int main() {
 			PvE();
 		}
 	} while (mode > 1);
+	//GenerateConsoleCtrlEvent(CTRL_BREAK_EVENT, 0);
+
 	return 0;
 }
 bool check_shot(char arr[10][10], int i ,int j) {
@@ -56,155 +61,171 @@ bool check_shot(char arr[10][10], int i ,int j) {
 
 if (i == 0) {
 		if (arr[i + 1][j] == '$') {
-			cout << "Ранение" << endl;
+			i_old = i + 1;
+			j_old = j;
 			return 1;
 		}
 		if (j == 0) {
 			if (arr[i][j + 1] == '$') {
-				cout << "Ранение" << endl;
+				i_old = i;
+				j_old = j+1;
 				return 1;
 			}
 
 		}
 		if (j == 9) {
 			if (arr[i][j - 1] == '$') {
-				cout << "Ранение" << endl;
+				i_old = i ;
+				j_old = j-1;
 				return 1;
 			}
 			else if (arr[i][j - 1] == 'X') {
 				a = j - 1;
-				check_shot(arr, i, a);
-				return 0;
+				return check_shot(arr, i, a);
 			}
 		}
 
 
 		if (j > 0 && j < 9) {
 			if (arr[i][j - 1] == '$') {
-				cout << "Ранение" << endl;
+				i_old = i ;
+				j_old = j-1;				
 				return 1;
 			}
 			else if (arr[i][j - 1] == 'X') {
 				a = j - 1;
-				check_shot(arr, i, a);
-				return 0;
+				return check_shot(arr, i, a);
 			}
 		}
 	}
 else if (i == 9) {
 		if (arr[i - 1][j] == '$') {
-			cout << "Ранение" << endl;
+			i_old = i - 1;
+			j_old = j;
 			return 1;			
 		}
 		if (j == 9) {
 			if (arr[i][j - 1] == '$') {
-				cout << "Ранение" << endl;
+				i_old = i;
+				j_old = j-1;
 				return 1;
 			}
 			else if (arr[i][j - 1] == 'X') {
 				a = j - 1;
-				check_shot(arr, i, a);
-				return 0;
+				return check_shot(arr, i, a);
 			}
 		}
 		else if (arr[i - 1][j] == 'X') {
 			a = i - 1;
-			check_shot(arr, a, j);
-			return 0;
+			return check_shot(arr, a, j);
 		}
 		if (j > 0 && j < 9) {
 			if (arr[i][j - 1] == '$') {
-				cout << "Ранение" << endl;
+				i_old = i;
+				j_old = j-1;
 				return 1;
 			}
 			else if (arr[i][j - 1] == 'X') {
 				a = j - 1;
-				check_shot(arr, i, a);
-				return 0;
+				return check_shot(arr, i, a);
 			}
 		}
 	}
-else	if (j == 0) {
+else if (j == 0) {
 		if (arr[i ][j + 1] == '$') {
-			cout << "Ранение" << endl;
+			i_old = i ;
+			j_old = j+1;
 			return 1;
 		} 
 		if (i == 9) {
 			if (arr[i - 1][j] == '$') {
-				cout << "Ранение" << endl;
+				i_old = i - 1;
+				j_old = j;
 				return 1;
 			}
 			else if (arr[i - 1][j] == 'X') {
 				a = i - 1;
-				check_shot(arr, a, j);
-				return 0;
+				return check_shot(arr, a, j);
 			}
 		}
 		if (i == 0) {
 			if (arr[i+ 1][j] == '$') {
-				cout << "Ранение" << endl;
+				i_old = i + 1;
+				j_old = j;
 				return 1;
 			}
-
 		}
-
 		if (i > 0 && i < 9) {
 			if (arr[i-1][j] == '$') {
-				cout << "Ранение" << endl;
+				i_old = i - 1;
+				j_old = j;
 				return 1;
 			}
 			else if (arr[i-1][j] == 'X') {
 				a = i - 1;
-				check_shot(arr, a, j);
-				return 0;
+				return check_shot(arr, a, j);
 			}
 		}
 
 	}
-	else	 if (j == 9) {
+	else if (j == 9) {
 		if (arr[i ][j - 1] == '$') {
-			cout << "Ранение" << endl;
+			i_old = i;
+			j_old = j-1;
 			return 1;
 		}
 		if (i == 0) {
 			if (arr[i + 1][j] == '$') {
-				cout << "Ранение" << endl;
+				i_old = i + 1;
+				j_old = j;
 				return 1;
 			}
 
 		}
 		else if (arr[i][j - 1] == 'X') {
 			a = j - 1;
-			check_shot(arr, i, a);
-			return 0;
+			return check_shot(arr, i, a);
 		}
 		if (i > 0 && i < 9) {
 			if (arr[i - 1][j] == '$') {
-				cout << "Ранение" << endl;
+				i_old = i - 1;
+				j_old = j;
 				return 1;
 			}
 			else if (arr[i - 1][j] == 'X') {
 				a = i - 1;
-				check_shot(arr,  a,j);
-				return 0;
+				return check_shot(arr,  a,j);
 			}
 		}
 	}
 	else if (arr[i+1][j]== '$'|| arr[i - 1][j] == '$' || arr[i ][j - 1] == '$' || arr[i][j + 1] == '$') {		 
-			cout << "Ранение" << endl;
+			if (arr[i + 1][j] == '$') {
+				i_old = i + 1;
+				j_old = j;
+			}
+			else if (arr[i - 1][j] == '$') {
+				i_old = i - 1;
+				j_old = j;
+			}
+			else if (arr[i][j + 1] == '$') {
+				i_old = i;
+				j_old = j + 1;
+			}
+			else if (arr[i][j - 1] == '$') {
+				i_old = i;
+				j_old = j - 1;
+			}
 			return 1;		
 	}
 
 	else if (arr[i - 1][j] == 'X') {
 		a = i - 1;
-		check_shot(arr, a, j);
-		return 0;
+		return check_shot(arr, a, j);
 	}
 
 	else if (arr[i][j-1] == 'X') {
 		a = j - 1;
-		check_shot(arr, i,a);
-		return 0;
+		return check_shot(arr, i,a);
 	}
 	
 	return 0;
@@ -213,23 +234,26 @@ bool check_shot2(char arr[10][10], int i, int j) {
 	int a = 0;
 	if (i == 0) {
 		if (arr[i + 1][j] == '$') {
-			cout << "Ранение" << endl;
+			i_old = i + 1;
+			j_old = j;
 			return 1;
 		}
 		if (j == 0) {
 			if (arr[i][j + 1] == '$') {
-				cout << "Ранение" << endl;
+				i_old = i ;
+				j_old = j+1;
 				return 1;
 			}
 			else if (arr[i][j + 1] == 'X') {
 						a = j + 1;
-						check_shot2(arr, i, a);
-						return 0;
+						return check_shot2(arr, i, a);
+						
 					}
 		}
 		if (j == 9) {
 			if (arr[i][j - 1] == '$') {
-				cout << "Ранение" << endl;
+				i_old = i;
+				j_old = j-1;
 				return 1;
 			}
 
@@ -237,33 +261,43 @@ bool check_shot2(char arr[10][10], int i, int j) {
 
 		else if (arr[i + 1][j] == 'X') {
 				a = i + 1;
-				check_shot2(arr, a, j);
-				return 0;
+				return check_shot2(arr, a, j);
 			}
 		if (j > 0 && j < 9) {
 			if (arr[i][j - 1] == '$') {
-				cout << "Ранение" << endl;
+				i_old = i;
+				j_old = j - 1;
 				return 1;
 			}
 			if (arr[i ][j+1] == '$') {
-				cout << "Ранение" << endl;
+				i_old = i;
+				j_old = j + 1;
 				return 1;
 			}
 			else if (arr[i][j +1] == 'X') {
 				a = j + 1;
-				check_shot2(arr, i, a);
-				return 0;
+				return check_shot2(arr, i, a);
 			}
 		}
 	}
 	else if (i == 9) {
 		if (arr[i - 1][j] == '$') {
-			cout << "Ранение" << endl;
+			i_old = i-1;
+			j_old = j ;
 			return 1;
 		}
 		if (j == 9) {
 			if (arr[i][j - 1] == '$') {
-				cout << "Ранение" << endl;
+				i_old = i;
+				j_old = j - 1;
+				return 1;
+			}
+
+		}
+		if (j == 0) {
+			if (arr[i][j + 1] == '$') {
+				i_old = i;
+				j_old = j + 1;
 				return 1;
 			}
 
@@ -271,116 +305,130 @@ bool check_shot2(char arr[10][10], int i, int j) {
 
 		if (j > 0 && j < 9) {
 			if (arr[i][j - 1] == '$') {
-				cout << "Ранение" << endl;
+				i_old = i;
+				j_old = j - 1;
 				return 1;
 			}
 			if (arr[i][j +1] == '$') {
-				cout << "Ранение" << endl;
+				i_old = i;
+				j_old = j + 1;
 				return 1;
 			}
 			else if (arr[i][j+ 1] == 'X') {
 				a = j+ 1;
-				check_shot2(arr, i, a);
-				return 0;
+				return check_shot2(arr, i, a);
 			}
 		}
 	}
 	else if (j == 0) {
 		if (arr[i][j + 1] == '$') {
-			cout << "Ранение" << endl;
+			i_old = i;
+			j_old = j + 1;
 			return 1;
 		}
 		if (i == 9) {
 			if (arr[i - 1][j] == '$') {
-				cout << "Ранение" << endl;
+				i_old = i;
+				j_old = j + 1;
 				return 1;
 			}
 			
 		}
 		if (i == 0) {
 			if (arr[i + 1][j] == '$') {
-				cout << "Ранение" << endl;
+				i_old = i+1;
+				j_old = j ;
 				return 1;
 			}
 			else if (arr[i + 1][j] == 'X') {
 				a = i + 1;
-				check_shot2(arr, i, a);
-				return 0;
+				return check_shot2(arr, i, a);
 			}
 		}
 		else if (arr[i][j + 1] == 'X') {
 			a = j + 1;
-			check_shot2(arr, i, a);
-			return 0;
+			return check_shot2(arr, i, a);
 		}
 		if (i > 0 && i < 9) {
 			if (arr[i - 1][j] == '$') {
-				cout << "Ранение" << endl;
+				i_old = i-1;
+				j_old = j;
 				return 1;
 			}
 			if (arr[i + 1][j] == '$') {
-				cout << "Ранение" << endl;
+				i_old = i+1;
+				j_old = j;
 				return 1;
 			}
 			else if (arr[i + 1][j] == 'X') {
 				a = i + 1;
-				check_shot2(arr, a, j);
-				return 0;
+				return check_shot2(arr, a, j);
 			}
 		}
 
 	}
 	else if (j == 9) {
 		if (arr[i][j - 1] == '$') {
-			cout << "Ранение" << endl;
+			i_old = i;
+			j_old = j - 1;
 			return 1;
 		}
 		if (i == 0) {
 			if (arr[i + 1][j] == '$') {
-				cout << "Ранение" << endl;
+				i_old = i+1;
+				j_old = j ;
 				return 1;
 			}
 			else if (arr[i + 1][j] == 'X') {
 				a = i + 1;
-				check_shot2(arr, a, i);
-				return 0;
+				return check_shot2(arr, a, i);
 			}
 		}
 
 		if (i > 0 && i < 9) {
 			if (arr[i - 1][j] == '$') {
-				cout << "Ранение" << endl;
+				i_old = i-1;
+				j_old = j;
 				return 1;
 			}
 			if (arr[i + 1][j] == '$') {
-				cout << "Ранение" << endl;
+				i_old = i+1;
+				j_old = j;
 				return 1;
 			}
 			else if (arr[i - 1][j] == 'X') {
 				a = i - 1;
-				check_shot2(arr, a, j);
-				return 0;
+				return check_shot2(arr, a, j);
 			}
 		}
 	}
 	else if (arr[i + 1][j] == '$' || arr[i - 1][j] == '$' || arr[i][j - 1] == '$' || arr[i][j + 1] == '$') {
-		cout << "Ранение" << endl;
+		if (arr[i + 1][j] == '$') {
+			i_old = i + 1;
+			j_old = j;
+		}
+		else if (arr[i - 1][j] == '$') {
+			i_old = i - 1;
+			j_old = j;
+		}
+		else if (arr[i][j + 1] == '$') {
+			i_old = i;
+			j_old = j+ 1;
+		}
+		else if (arr[i][j - 1] == '$') {
+			i_old = i ;
+			j_old = j-1;
+		}
 		return 1;
 	}
 	else if (arr[i + 1][j] == 'X') {
 		a = i + 1;
-		check_shot2(arr, a, j);
-		return 0;
-	
-
+		return check_shot2(arr, a, j);
 	}
 	else if (arr[i][j+1] == 'X') {
 		a = j + 1;
-		check_shot2(arr, i,a);
-		return 0;
+		return check_shot2(arr, i,a);
 	}
-	
-
 	return 0;
 }
 
@@ -392,7 +440,6 @@ int fillFiled(char arr[10][10]) {
 			arr[i][j] = '-';
 		}
 	}
-
 	return **arr;
 }
 void next_move() {
@@ -421,12 +468,25 @@ void coutFiled(char filed[10][10], char filed2[10][10]) {
 	for (int i = 0; i < size; i++) {
 		cout << x << " ";
 		for (int j = 0; j < size; j++) {
-
+			if (filed[i][j] == 'X') {
+				cout<< color(red) << filed[i][j] << " ";
+			}
+			else if (filed[i][j] == '$') {
+				cout << color(green) << filed[i][j] << " ";
+			}
+			else
 			cout << filed[i][j] << " ";
 		}
 		cout << "\t\t\t\t";
 		cout << x << " ";
 		for (int j = 0; j < size; j++) {
+			if (filed2[i][j] == 'X') {
+				cout << color(red) << filed2[i][j] << " ";
+			}
+			else if (filed2[i][j] == '$') {
+				cout << color(green) << filed2[i][j] << " ";
+			}
+			else
 			cout << filed2[i][j] << " ";
 		}
 
@@ -449,7 +509,13 @@ void coutFiled(char arr[10][10]) {
 	for (int i = 0; i < size; i++) {
 		cout << x << " ";
 		for (int j = 0; j < size; j++) {
-
+			if (arr[i][j] == 'X') {
+				cout << color(red) << arr[i][j] << " ";
+			}
+			else if (arr[i][j] == '$') {
+				cout << color(green) << arr[i][j] << " ";
+			}
+			else
 			cout << arr[i][j] << " ";
 		}
 		x++;
@@ -458,10 +524,19 @@ void coutFiled(char arr[10][10]) {
 
 }
 int arrangement(char arr[10][10], char OParr[10][10], char arr2[10][10], char OParr2[10][10]){
-	cout << "Введите координаты,для выстрела:" << endl;
+	cout << "\tВведите координаты,для выстрела:" << endl;
+	cout << color(dark_gray) << "\t\"exit\" - закончить игру:" << endl;
+	cout << color(dark_gray) << "\t\"new\" начать новую игру" << endl;
+
 	string move;
 	
 	getline(cin, move);
+	if (move == "exit") {
+		exit(0);
+	}
+	else if(move == "new") {
+		main();
+	}
 	if (move.length() < 2) {
 		arrangement(arr, OParr, arr2, OParr2);
 		return **arr, ** OParr2;
@@ -476,7 +551,7 @@ if (move.length()>2) {
 if (arr[i][j] == '-') {
 	arr[i][j] = '*';
 	
-	cout << "ПРОМАХ!!!" << endl;
+	cout << "\tПРОМАХ!!!" << endl;
 }
 	else if (arr[i][j] == '*'|| arr[i][j] == 'X') {
 		cout << "Вы уже стреляли сюда ,повторите." << endl;
@@ -488,14 +563,17 @@ if (arr[i][j] == '-') {
 		arr[i][j] = 'X';
 		OParr2[i][j] = arr[i][j];
 		bool win = true;
-		cout << "ПОПОДАНИЕ!!!" << endl;
+		cout << "\tПОПОДАНИЕ!!!" << endl;
 		if (!check_shot(arr, i, j))	{
 			if (!check_shot2(arr, i, j)) {
-				cout << "Убит!!!" << endl;
+				printf("\t\x1B[31mУбит!!!\033[0m\n");
 				killed(arr,  i, j);
 				killed2(arr,  i, j);
 
 			}
+		}
+		if (check_shot(arr, i, j) || check_shot2(arr, i, j)) {
+			cout << color(yellow) << "\tРанение" << endl;
 		}
 		for (int i = 0; i < 10; i++) {
 			for (int j = 0; j < 10; j++) {
@@ -508,7 +586,7 @@ if (arr[i][j] == '-') {
 		if (win == false) {
 			return **arr, ** OParr2;
 		}
-		cout << "Дополнительный ход" << endl;
+		cout << "\tДополнительный ход" << endl;
 		coutFiled(arr2, OParr2);
 		arrangement(arr, OParr, arr2, OParr2);
 		return **arr, **OParr2;
@@ -520,10 +598,19 @@ if (arr[i][j] == '-') {
 
 }
 int arrangement(char arr[10][10], char OParr2[10][10], char arr2[10][10]) {
-	cout << "Введите координаты,для выстрела:" << endl;
+	cout << color(dark_gray) << "\t\"exit\" закончить игру:" << endl;
+	cout << color(dark_gray) << "\t\"new\" начать новую игру" << endl;
+
+	cout << "\nВведите координаты,для выстрела:" << endl;
 	string move;
 
 	getline(cin, move);
+	if (move == "exit") {
+		exit(0);
+	}
+	else if (move == "new") {
+		main();
+	}
 	if (move.length() < 2) {
 		arrangement(arr,  OParr2,arr2 );
 		return **arr, ** OParr2;
@@ -538,10 +625,10 @@ int arrangement(char arr[10][10], char OParr2[10][10], char arr2[10][10]) {
 	if (arr[i][j] == '-') {
 		arr[i][j] = '*';
 
-		cout << "ПРОМАХ!!!" << endl;
+		cout << "\tПРОМАХ!!!" << endl;
 	}
 	else if (arr[i][j] == '*' || arr[i][j] == 'X') {
-		cout << "Вы уже стреляли сюда ,повторите." << endl;
+		cout << "\tВы уже стреляли сюда ,повторите." << endl;
 		arrangement(arr, OParr2, arr2);
 		return **arr, ** OParr2;
 
@@ -550,10 +637,11 @@ int arrangement(char arr[10][10], char OParr2[10][10], char arr2[10][10]) {
 		arr[i][j] = 'X';
 		OParr2[i][j] = arr[i][j];
 		bool win = true;
-		cout << "ПОПОДАНИЕ!!!" << endl;
+		cout << "\tПОПОДАНИЕ!!!" << endl;
 		if (!check_shot(arr, i, j)) {
 			if (!check_shot2(arr, i, j)) {
-				cout << "Убит!!!" << endl;
+				printf("\t\x1B[31mУбит!!!\033[0m\n");
+			
 				killed(arr,  i, j);
 				killed2(arr,  i, j);
 
@@ -566,11 +654,14 @@ int arrangement(char arr[10][10], char OParr2[10][10], char arr2[10][10]) {
 				}
 			}
 		}
+		if (check_shot(arr, i, j) || check_shot2(arr, i, j)) {
+			cout << color(yellow) << "\tРанение" << endl;
+		}
 		win = winnerOrno(arr);
 		if (win == false) {
 			return **arr, ** OParr2;
 		}
-		cout << "Дополнительный ход" << endl;
+		cout << "\tДополнительный ход" << endl;
 		coutFiled(arr2, OParr2);
 		arrangement(arr, OParr2, arr2);
 		return **arr, ** OParr2;
@@ -583,13 +674,12 @@ int arrangement(char arr[10][10], char OParr2[10][10], char arr2[10][10]) {
 }
 
 int four_decker_for_Rand(char arr[10][10]) {
-	int i = rand() % 9;
-	int j = rand() % 9;
+	int i = rand() % 10;
+	int j = rand() %10;
 	int i2 = 0;
 	int j2 = 0;
 	int counter = 0;
 	bool x = rand() % 2; //по горизонтали или вертикали 
-	
 	if (x == true) {
 		if (j >= 5) {
 			
@@ -628,8 +718,8 @@ int four_decker_for_Rand(char arr[10][10]) {
 	return **arr;
 }
 int three_decker_for_Rand(char arr[10][10]) {
-	int i = rand() % 10;
-	int j = rand() % 10;
+	int i = rand() % 8;
+	int j = rand() % 8;
 	int i2 = 0;
 	int j2 = 0;
 	bool a = true;
@@ -642,11 +732,11 @@ int three_decker_for_Rand(char arr[10][10]) {
 	}	
 	if (x == true) {
 		i2 = i + 2;
-		i2 = i;
+		j2 = j;
 	}
 	else if (x == false) {
 		j2 = j + 2;
-		j2 = j;
+		i2 = i;
 	}
 	a = check(arr, i2, j2);
 	if (a == false) {
@@ -655,34 +745,20 @@ int three_decker_for_Rand(char arr[10][10]) {
 		return **arr;
 	}
 	if (i == i2 && i < 10 && i >= 0) {
-		if (j > j2 && j - j2 == 2) {
-			while (counter < 3) {
-				arr[i][j2 + counter] = '$';
-				counter++;
-			}
-
-		}
-	/*	else if (j2 > j && j2 - j == 2) {
+		if (j2 > j && j2-j == 2&&j2<7) {
 			while (counter < 3) {
 				arr[i][j + counter] = '$';
 				counter++;
 			}
-		}*/
-		else {
-			
+
+		}
+		else {			
 			three_decker_for_Rand(arr);
 			return **arr;
 		}
 	}
-	else if (j == j2 && j < 10 && j >= 0) {
-		if (i > i2 && i - i2 == 2) {
-			while (counter < 3) {
-				arr[i2 + counter][j] = '$';
-				counter++;
-			}
-
-		}
-		else if (i2 > i && i2 - i == 2) {
+	else if (j == j2 ) {		
+		 if (i2 > i) {
 			while (counter < 3) {
 				arr[i + counter][j] = '$';
 				counter++;
@@ -702,8 +778,8 @@ int three_decker_for_Rand(char arr[10][10]) {
 	return **arr;
 }
 int double_decker_for_Rand(char arr[10][10]) {
-	int i = rand() % 10;
-	int j = rand() % 10;
+	int i = rand() % 9;
+	int j = rand() % 9;
 	int i2 = 0;
 	int j2 = 0;
 	bool a = true;
@@ -716,11 +792,11 @@ int double_decker_for_Rand(char arr[10][10]) {
 	}
 	if (x == true) {
 		i2 = i + 1;
-		i2 = i;
+		j2 = j;
 	}
 	else if (x == false) {
 		j2 = j + 1;
-		j2 = j;
+		i2 = i;
 	}
 	a = check(arr, i2, j2);
 	if (a == false) {
@@ -729,34 +805,22 @@ int double_decker_for_Rand(char arr[10][10]) {
 		return **arr;
 	}
 	if (i == i2 && i < 10 && i >= 0) {
-		if (j > j2 && j - j2 == 1) {
-			while (counter < 2) {
-				arr[i][j2 + counter] = '$';
-				counter++;
-			}
-
-		}
-	/*	else if (j2 > j && j2 - j ==1) {
+		if (j2 > j) {
 			while (counter < 2) {
 				arr[i][j + counter] = '$';
 				counter++;
 			}
-		}*/
+		}
 		else {
 
 			double_decker_for_Rand(arr);
 			return **arr;
 		}
 	}
-	else if (j == j2 && j < 10 && j >= 0) {
-		if (i > i2 && i - i2 == 1) {
-			while (counter < 2) {
-				arr[i2 + counter][j] = '$';
-				counter++;
-			}
-
-		}
-		else if (i2 > i && i2 - i == 1) {
+		
+	
+	else if (j == j2) {
+		 if (i2 > i) {
 			while (counter < 2) {
 				arr[i + counter][j] = '$';
 				counter++;
@@ -785,15 +849,10 @@ int single_decker_for_Rand(char arr[10][10]) {
 		single_decker_for_Rand(arr);
 		return **arr;
 	}
-	if (i >= 0 && i < 10 && j >= 0 && j < 10) {
-		arr[i][j] = '$';
-	}
 	else {
 		
-		single_decker_for_Rand(arr);
-		return **arr;
+		arr[i][j] = '$';
 	}
-
 	return **arr;
 }
 
@@ -1200,7 +1259,8 @@ int killed(char arr[10][10], int i, int j) {
 					return 0;
 				}
 			}
-		
+
+			
 
 		}
 		if (j == 0) {
@@ -1464,11 +1524,8 @@ void PvsP() {
 	char player2Filed[size][size];
 	char opponent1Filed[size][size];
 	char opponent2Filed[size][size];
-	//
 	int counter = 0;
-	
 	string a;
-
 	fillFiled(player1Filed);
 	fillFiled(player2Filed);
 	fillFiled(opponent1Filed);
@@ -1585,6 +1642,9 @@ cout << "Расстановка кораблей " << endl;
 		
 }
 void PvE() {
+	cout << "Выберите сложность:\n0 - легко\n1 - тяжело" << endl;
+	cin >> complexity;
+
 	int const size = 10;
 	char player1Filed[size][size];
 	char compFiled[size][size];
@@ -1673,6 +1733,9 @@ void PvE() {
 }
 void game(char PLarr[10][10], char OParr[10][10], char PLarr2[10][10], char OParr2[10][10]) {
 	string s;
+
+
+
 	bool win = true;
 	cout << "Для начала игры нажните Enter" << endl;
 	getline(cin, s);
@@ -1716,7 +1779,7 @@ void game(char PLarr[10][10], char OParr[10][10], char PLarr2[10][10], char OPar
 int shot(char arr[10][10]) {
 	int i =0;
 	int j = 0;
-	if (decision) {
+	if (decision||!complexity) {
 		i = rand() % 10;
 		j = rand() % 10;
 	}
@@ -1727,33 +1790,44 @@ int shot(char arr[10][10]) {
 	}
 	if (arr[i][j] == '-') {
 		cout << "Выстрел компьютера" << endl;
+		Sleep(2000);
 		cout << char(i+65) <<j+1<< endl;
 		arr[i][j] = '*';
 		coutFiled(arr);
 		cout << "Промах!!!" << endl;
+		Sleep(2000);
+		decision = true;
 		
 		
 	}
 	else if (arr[i][j] == '*'|| arr[i][j] == 'X') {
+		decision = true;
 		shot(arr);
 		return 0;
 	}
 	else if (arr[i][j] == '$') {
 		cout << "Выстрел компьютера" << endl;
+		Sleep(2000);
+		cout << "Попадание!!!" << endl;
 		cout << char(i + 65) << j + 1 << endl;
 		arr[i][j] = 'X';
 		if (!check_shot(arr, i, j)) {
 			if (!check_shot2(arr, i, j)) {
-				cout << "Убит!!!" << endl;
-				killed(arr, i, j);
-				killed2(arr, i, j);
-				decision = true;
+				printf("\x1B[31mУбит!!!\033[0m\n");
+					killed(arr, i, j);
+					killed2(arr, i, j);
+					decision = true;
 			}
 		}
+		else  {
+			decision = false;
+		}
 		coutFiled(arr);
-		cout << "Попадание!!!" << endl;
+		
+		Sleep(2000);
 		cout << "Дополнительный ход" << endl;	
 		shot(arr);
+		
 		return 0;
 	}
 	return 0;
@@ -1781,6 +1855,7 @@ void game(char PLarr[10][10], char OParr[10][10], char comp[10][10]) {
 				main();
 			}
 		}
+		decision = false;
 		shot(PLarr);
 		win = winnerOrno(PLarr);
 		if (win == false) {
