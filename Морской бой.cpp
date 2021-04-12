@@ -1823,7 +1823,11 @@ int shot(char arr[10][10]) {
 			decision = false;
 		}
 		coutFiled(arr);
-		
+		bool win=true;
+		win = winnerOrno(arr);
+		if (win == false) {
+			return 0;
+		}
 		Sleep(2000);
 		cout << "Дополнительный ход" << endl;	
 		shot(arr);
@@ -1859,7 +1863,7 @@ void game(char PLarr[10][10], char OParr[10][10], char comp[10][10]) {
 		shot(PLarr);
 		win = winnerOrno(PLarr);
 		if (win == false) {
-			cout << "ПОБЕДА компьютера игрока игрока!!!" << endl;
+			cout << "ПОБЕДА компьютера !!!" << endl;
 			cout << "Начать заново ?\n0 - нет\n1 - да" << endl;
 			int a = 0;
 			cin >> a;
